@@ -625,6 +625,7 @@ BASHRC_EOF
             exec "$SCRIPT_DIR/start-ubuntu.sh"
         else
             info "Script completed. Ubuntu will start automatically when you close and reopen Termux."
+            info "(Don't forget to run the command: bash /root/first-setup.sh in your Ubuntu session!)"
         fi
     fi
 else
@@ -646,6 +647,7 @@ else
             exec "$SCRIPT_DIR/start-ubuntu.sh"
         else
             info "Script completed. Happy coding!"
+            info "(Don't forget to run the command: bash /root/first-setup.sh in your Ubuntu session!)"
             echo ""
             echo -e "${GREEN}To start Ubuntu:${NC}"
             echo "  ./start-ubuntu.sh"
