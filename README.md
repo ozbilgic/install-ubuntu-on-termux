@@ -19,10 +19,18 @@ Automatic Ubuntu installation script for Termux. No root required.
 ## One-Command Installation
 
 ```bash
-pkg install -y wget && wget -O - https://raw.githubusercontent.com/ozbilgic/install-ubuntu-on-termux/main/ubuntu-installer.sh | bash
+pkg update && pkg upgrade -y && pkg install -y wget && wget -O - https://raw.githubusercontent.com/ozbilgic/install-ubuntu-on-termux/main/ubuntu-installer.sh | bash
 ```
 
+**Note:** When using one-command installation, the script runs in automatic mode:
+- The newest Ubuntu LTS version is automatically selected
+- Alternative versions are automatically tried if download fails
+- Auto-start is enabled by default
+- Installation completes without user interaction
+
 ## Manual Installation
+
+With manual installation, all options are presented to you and you can configure as you wish:
 
 ```bash
 # Download the script
@@ -34,6 +42,11 @@ chmod +x ubuntu-installer.sh
 # Start installation
 ./ubuntu-installer.sh
 ```
+
+In manual installation:
+- You choose which Ubuntu LTS version to install
+- You can enable or disable auto-start option
+- You get the option to start Ubuntu immediately or later
 
 ## Installation Steps
 

@@ -69,10 +69,25 @@ if ! wget --version >/dev/null 2>&1; then
 fi
 info "✓ wget is working"
 
+# Check if running via pipe (early detection)
+PIPED_INPUT=false
+if [ ! -t 0 ]; then
+    PIPED_INPUT=true
+    warn "Script is running via pipe, default values will be used"
+fi
+
 # 3. Check for existing installation
 if [ -d "$UBUNTU_DIR" ]; then
     warn "Ubuntu installation already exists: $UBUNTU_DIR"
-    read -p "Do you want to remove the existing installation and reinstall? (y/n): " response
+
+    # If running via pipe, automatically remove and reinstall
+    if [ "$PIPED_INPUT" = true ]; then
+        response="y"
+        info "Default choice: Existing installation will be removed and reinstalled"
+    else
+        read -p "Do you want to remove the existing installation and reinstall? (y/n): " response
+    fi
+
     if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
         info "Removing existing installation..."
         rm -rf "$UBUNTU_DIR"
@@ -175,7 +190,14 @@ echo "  2) Ubuntu ${VERSION_2_FULL} LTS"
 echo "  3) Ubuntu ${VERSION_3_FULL} LTS"
 echo "  4) Ubuntu ${VERSION_4_FULL} LTS"
 echo ""
-read -p "Your choice (1, 2, 3, or 4): " version_choice
+
+# If running via pipe, use default choice
+if [ "$PIPED_INPUT" = true ]; then
+    version_choice=1
+    info "Default choice: Ubuntu ${VERSION_1_FULL} LTS"
+else
+    read -p "Your choice (1, 2, 3, or 4): " version_choice
+fi
 
 # Set selected version and alternatives
 case $version_choice in
@@ -240,7 +262,13 @@ if [ $? -ne 0 ] || [ ! -f ubuntu.tar.gz ] || [ ! -s ubuntu.tar.gz ]; then
     echo "  $((${#ALTERNATIVES[@]}+1))) Cancel installation"
     echo ""
 
-    read -p "Your choice: " alt_choice
+    # If running via pipe, automatically try first alternative
+    if [ "$PIPED_INPUT" = true ]; then
+        alt_choice=1
+        info "Default choice: Trying first alternative version"
+    else
+        read -p "Your choice: " alt_choice
+    fi
 
     # Validate choice
     if [ "$alt_choice" -ge 1 ] && [ "$alt_choice" -le "${#ALTERNATIVES[@]}" ] 2>/dev/null; then
@@ -538,7 +566,14 @@ echo ""
 
 # 12. Offer auto-start option to user
 echo ""
-read -p "Would you like to automatically start Ubuntu every time Termux opens? (This option also adds the Ubuntu logo) (y/n): " auto_start
+# If running via pipe, enable auto-start by default
+if [ "$PIPED_INPUT" = true ]; then
+    auto_start="y"
+    info "Default choice: Auto-start enabled."
+else
+    read -p "Would you like to automatically start Ubuntu every time Termux opens? (This option also adds the Ubuntu logo) (y/n): " auto_start
+fi
+
 if [ "$auto_start" = "y" ] || [ "$auto_start" = "Y" ]; then
     info "Configuring auto-start setting..."
 
@@ -579,26 +614,41 @@ BASHRC_EOF
 
     # Start now
     echo ""
-    read -p "Would you like to start Ubuntu now? (y/n): " start_now
-    if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
-        info "Starting Ubuntu..."
-        exec "$SCRIPT_DIR/start-ubuntu.sh"
-    else
+    # If running via pipe, don't start now
+    if [ "$PIPED_INPUT" = true ]; then
+        start_now="n"
         info "Script completed. Ubuntu will start automatically when you close and reopen Termux."
+    else
+        read -p "Would you like to start Ubuntu now? (y/n): " start_now
+        if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
+            info "Starting Ubuntu..."
+            exec "$SCRIPT_DIR/start-ubuntu.sh"
+        else
+            info "Script completed. Ubuntu will start automatically when you close and reopen Termux."
+        fi
     fi
 else
     info "Auto-start not configured"
 
     # 13. Offer user option to start Ubuntu
     echo ""
-    read -p "Would you like to start Ubuntu now? (y/n): " start_ubuntu
-    if [ "$start_ubuntu" = "y" ] || [ "$start_ubuntu" = "Y" ]; then
-        info "Starting Ubuntu..."
-        exec "$SCRIPT_DIR/start-ubuntu.sh"
-    else
+    # If running via pipe, don't start now
+    if [ "$PIPED_INPUT" = true ]; then
+        start_ubuntu="n"
         info "Script completed. Happy coding!"
         echo ""
         echo -e "${GREEN}To start Ubuntu:${NC}"
         echo "  ./start-ubuntu.sh"
+    else
+        read -p "Would you like to start Ubuntu now? (y/n): " start_ubuntu
+        if [ "$start_ubuntu" = "y" ] || [ "$start_ubuntu" = "Y" ]; then
+            info "Starting Ubuntu..."
+            exec "$SCRIPT_DIR/start-ubuntu.sh"
+        else
+            info "Script completed. Happy coding!"
+            echo ""
+            echo -e "${GREEN}To start Ubuntu:${NC}"
+            echo "  ./start-ubuntu.sh"
+        fi
     fi
 fi
