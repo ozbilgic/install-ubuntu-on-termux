@@ -618,6 +618,7 @@ BASHRC_EOF
     if [ "$PIPED_INPUT" = true ]; then
         start_now="n"
         info "Script completed. Ubuntu will start automatically when you close and reopen Termux."
+        info "(Don't forget to run the command: bash /root/first-setup.sh in your Ubuntu session!)"
     else
         read -p "Would you like to start Ubuntu now? (y/n): " start_now
         if [ "$start_now" = "y" ] || [ "$start_now" = "Y" ]; then
